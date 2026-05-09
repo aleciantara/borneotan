@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
+import { deleteStat, updateStat } from "@/lib/db";
 import { z } from "zod";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
@@ -29,10 +29,10 @@ export async function PATCH(
     if (!parsed.success) {
       return NextResponse.json({ error: "Invalid input" }, { status: 400 });
     }
-    const stat = await prisma.statistic.update({
-      where: { id: Number(id) },
-      data: parsed.data,
-    });
+    const stat = await updateStat(id, parsed.data);
+    if (!stat) {
+      return NextResponse.json({ error: "Not found" }, { status: 404 });
+    }
     return NextResponse.json(stat);
   } catch {
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
@@ -48,7 +48,10 @@ export async function DELETE(
 
   const { id } = await params;
   try {
-    await prisma.statistic.delete({ where: { id: Number(id) } });
+    const deleted = await deleteStat(id);
+    if (!deleted) {
+      return NextResponse.json({ error: "Not found" }, { status: 404 });
+    }
     return NextResponse.json({ success: true });
   } catch {
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });

@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import { prisma } from "@/lib/prisma";
+import { listLatestPublishedBlogs, listLatestStats } from "@/lib/db";
 import ContactSection from "@/components/ContactSection";
 import ScrollReveal from "@/components/ScrollReveal";
 import AnimatedCounter from "@/components/AnimatedCounter";
@@ -26,8 +26,8 @@ const facts = [
 
 export default async function Home() {
   const [stats, posts] = await Promise.all([
-    prisma.statistic.findMany({ take: 4, orderBy: { createdAt: "asc" } }),
-    prisma.blog.findMany({ where: { published: true }, orderBy: { createdAt: "desc" }, take: 3 }),
+    listLatestStats(4),
+    listLatestPublishedBlogs(3),
   ]);
 
   return (

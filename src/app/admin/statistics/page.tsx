@@ -2,14 +2,14 @@
 
 import { useEffect, useState } from "react";
 
-type Stat = { id: number; label: string; value: string };
+type Stat = { id: string; label: string; value: string };
 
 export default function AdminStatisticsPage() {
   const [stats, setStats] = useState<Stat[]>([]);
   const [loading, setLoading] = useState(true);
   const [form, setForm] = useState({ label: "", value: "" });
   const [saving, setSaving] = useState(false);
-  const [editId, setEditId] = useState<number | null>(null);
+  const [editId, setEditId] = useState<string | null>(null);
   const [editForm, setEditForm] = useState({ label: "", value: "" });
 
   async function fetchStats() {
@@ -39,7 +39,7 @@ export default function AdminStatisticsPage() {
     setSaving(false);
   }
 
-  async function handleDelete(id: number) {
+  async function handleDelete(id: string) {
     if (!confirm("Delete this statistic?")) return;
     await fetch(`/api/stats/${id}`, { method: "DELETE" });
     setStats((prev) => prev.filter((s) => s.id !== id));

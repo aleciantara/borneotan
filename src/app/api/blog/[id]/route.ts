@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
+import { deleteBlog, getBlogById, updateBlog } from "@/lib/db";
 import { z } from "zod";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
@@ -28,7 +28,7 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   const { id } = await params;
-  const post = await prisma.blog.findUnique({ where: { id: Number(id) } });
+  const post = await getBlogById(id);
   if (!post) return NextResponse.json({ error: "Not found" }, { status: 404 });
   return NextResponse.json(post);
 }
@@ -47,10 +47,10 @@ export async function PATCH(
     if (!parsed.success) {
       return NextResponse.json({ error: "Invalid input" }, { status: 400 });
     }
-    const post = await prisma.blog.update({
-      where: { id: Number(id) },
-      data: parsed.data,
-    });
+    const post = await updateBlog(id, parsed.data);
+    if (!post) {
+      return NextResponse.json({ error: "Not found" }, { status: 404 });
+    }
     return NextResponse.json(post);
   } catch {
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
@@ -66,7 +66,10 @@ export async function DELETE(
 
   const { id } = await params;
   try {
-    await prisma.blog.delete({ where: { id: Number(id) } });
+    const deleted = await deleteBlog(id);
+    if (!deleted) {
+      return NextResponse.json({ error: "Not found" }, { status: 404 });
+    }
     return NextResponse.json({ success: true });
   } catch {
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });

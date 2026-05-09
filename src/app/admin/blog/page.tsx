@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 
 type Post = {
-  id: number;
+  id: string;
   title: string;
   slug: string;
   published: boolean;
@@ -26,7 +26,7 @@ export default function AdminBlogPage() {
     fetchPosts();
   }, []);
 
-  async function handleDelete(id: number) {
+  async function handleDelete(id: string) {
     if (!confirm("Delete this post?")) return;
     await fetch(`/api/blog/${id}`, { method: "DELETE" });
     setPosts((prev) => prev.filter((p) => p.id !== id));

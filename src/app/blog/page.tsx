@@ -1,6 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
-import { prisma } from "@/lib/prisma";
+import { listPublishedBlogs } from "@/lib/db";
 
 export const revalidate = 3600;
 
@@ -10,10 +10,7 @@ function excerpt(content: string, maxLen = 140) {
 }
 
 export default async function BlogPage() {
-  const posts = await prisma.blog.findMany({
-    where: { published: true },
-    orderBy: { createdAt: "desc" },
-  });
+  const posts = await listPublishedBlogs();
 
   const [featured, ...rest] = posts;
 

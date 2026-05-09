@@ -2,7 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { marked } from "marked";
-import { prisma } from "@/lib/prisma";
+import { getBlogBySlug, listLatestPublishedBlogs } from "@/lib/db";
 import type { Metadata } from "next";
 
 export const revalidate = 3600;
@@ -13,7 +13,7 @@ export async function generateMetadata({
   params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
   const { slug } = await params;
-  const post = await prisma.blog.findUnique({ where: { slug } });
+  const post = await getBlogBySlug(slug);
   if (!post) return {};
   return { title: `${post.title} — BorneoTan`, description: post.title };
 }
@@ -24,16 +24,14 @@ export default async function BlogDetailPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const [post, related] = await Promise.all([
-    prisma.blog.findUnique({ where: { slug, published: true } }),
-    prisma.blog.findMany({
-      where: { published: true, NOT: { slug } },
-      orderBy: { createdAt: "desc" },
-      take: 3,
-    }),
+  const [post, allLatest] = await Promise.all([
+    getBlogBySlug(slug),
+    listLatestPublishedBlogs(6),
   ]);
 
-  if (!post) notFound();
+  const related = allLatest.filter((p) => p.slug !== slug).slice(0, 3);
+
+  if (!post || !post.published) notFound();
 
   const html = await marked(post.content, { gfm: true, breaks: true });
 

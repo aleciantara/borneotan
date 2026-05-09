@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
+import { createStat, listStats } from "@/lib/db";
 import { z } from "zod";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
@@ -10,7 +10,7 @@ const schema = z.object({
 });
 
 export async function GET() {
-  const stats = await prisma.statistic.findMany({ orderBy: { createdAt: "asc" } });
+  const stats = await listStats();
   return NextResponse.json(stats);
 }
 
@@ -24,7 +24,7 @@ export async function POST(request: Request) {
     if (!parsed.success) {
       return NextResponse.json({ error: "Invalid input" }, { status: 400 });
     }
-    const stat = await prisma.statistic.create({ data: parsed.data });
+    const stat = await createStat(parsed.data);
     return NextResponse.json(stat, { status: 201 });
   } catch {
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });

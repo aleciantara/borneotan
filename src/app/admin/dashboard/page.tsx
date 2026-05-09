@@ -1,10 +1,10 @@
-import { prisma } from "@/lib/prisma";
+import { countBlogs, countStats } from "@/lib/db";
 import Link from "next/link";
 
 export default async function AdminDashboard() {
   const [blogCount, statCount] = await Promise.all([
-    prisma.blog.count(),
-    prisma.statistic.count(),
+    countBlogs(),
+    countStats(),
   ]);
 
   return (

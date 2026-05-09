@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
+import { createContact } from "@/lib/db";
 import { z } from "zod";
 
 const schema = z.object({
@@ -15,7 +15,7 @@ export async function POST(request: Request) {
     if (!parsed.success) {
       return NextResponse.json({ error: "Invalid input" }, { status: 400 });
     }
-    const contact = await prisma.contact.create({ data: parsed.data });
+    const contact = await createContact(parsed.data);
     return NextResponse.json(contact, { status: 201 });
   } catch {
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });

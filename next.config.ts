@@ -2,7 +2,7 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   reactCompiler: true,
-  serverExternalPackages: ["mariadb", "@prisma/adapter-mariadb", "@prisma/client"],
+  serverExternalPackages: ["firebase-admin"],
   images: {
     remotePatterns: [
       {

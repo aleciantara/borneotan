@@ -1,9 +1,9 @@
-import { prisma } from "@/lib/prisma";
+import { listStats } from "@/lib/db";
 
 export const revalidate = 3600;
 
 export default async function StatisticsPage() {
-  const stats = await prisma.statistic.findMany({ orderBy: { createdAt: "asc" } });
+  const stats = await listStats();
 
   return (
     <div className="max-w-5xl mx-auto px-4 py-16">
